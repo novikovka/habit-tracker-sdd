@@ -61,10 +61,10 @@ private slots:
             QSKIP("Database integration not requested; no database modified");
         DatabaseConfig config;
         QString error;
-        QVERIFY2(DatabaseConfig::load(DatabaseConfig::defaultPath(), config, error), qPrintable(error));
+        QVERIFY2(DatabaseConfig::load(DatabaseConfig::defaultPath(), config, error), qUtf8Printable(error));
         config.database = Database::expectedName(Database::Purpose::IntegrationTest);
         Database db(Database::Purpose::IntegrationTest);
-        QVERIFY2(db.open(config), qPrintable(db.error()));
+        QVERIFY2(db.open(config), qUtf8Printable(db.error()));
         // Queries are scoped so no handles survive close()/open().
         {
             QSqlQuery query(db.connection());

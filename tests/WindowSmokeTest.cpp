@@ -2,6 +2,8 @@
 #include <QFile>
 #include <QLabel>
 #include <QPushButton>
+#include <QScopeGuard>
+#include <QSettings>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QtTest>
@@ -19,6 +21,10 @@ private slots:
         file.write("[database]\nhost=127.0.0.1\nport=1\nname=habit_tracker_sdd\nuser=unused\n");
         file.close();
         const auto previous = qgetenv("HABIT_TRACKER_CONFIG");
+        const auto restoreConfig = qScopeGuard([previous] {
+            if (previous.isNull()) qunsetenv("HABIT_TRACKER_CONFIG");
+            else qputenv("HABIT_TRACKER_CONFIG", previous);
+        });
         qputenv("HABIT_TRACKER_CONFIG", path.toUtf8());
         MainWindow window;
         QSignalSpy spy(&window, &MainWindow::connectionFinished);
@@ -36,8 +42,41 @@ private slots:
         const auto *statistics = window.findChild<QPushButton *>("statistics");
         QVERIFY(statistics && !statistics->isEnabled());
         QVERIFY(!window.findChild<QPushButton *>("addHabit")->isEnabled());
-        if (previous.isNull()) qunsetenv("HABIT_TRACKER_CONFIG");
-        else qputenv("HABIT_TRACKER_CONFIG", previous);
+    }
+
+    void connectedWindow()
+    {
+        if (qEnvironmentVariable("HABIT_TRACKER_RUN_DB_TESTS") != "1")
+            QSKIP("Connected window requires the isolated integration database");
+        DatabaseConfig config;
+        QString error;
+        QVERIFY2(DatabaseConfig::load(DatabaseConfig::defaultPath(), config, error), qUtf8Printable(error));
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto path = directory.filePath("connection.ini");
+        {
+            QSettings settings(path, QSettings::IniFormat);
+            settings.setValue("database/host", config.host);
+            settings.setValue("database/port", config.port);
+            settings.setValue("database/name", Database::expectedName(Database::Purpose::IntegrationTest));
+            settings.setValue("database/user", config.user);
+            settings.sync();
+            QCOMPARE(settings.status(), QSettings::NoError);
+        }
+        const auto previous = qgetenv("HABIT_TRACKER_CONFIG");
+        const auto restoreConfig = qScopeGuard([previous] {
+            if (previous.isNull()) qunsetenv("HABIT_TRACKER_CONFIG");
+            else qputenv("HABIT_TRACKER_CONFIG", previous);
+        });
+        qputenv("HABIT_TRACKER_CONFIG", path.toUtf8());
+        MainWindow window(nullptr, Database::Purpose::IntegrationTest);
+        QSignalSpy spy(&window, &MainWindow::connectionFinished);
+        window.show();
+        QTRY_VERIFY_WITH_TIMEOUT(spy.count() == 1, 10000);
+        QVERIFY2(spy.at(0).at(0).toBool(), qUtf8Printable(window.findChild<QLabel *>("message")->text()));
+        QVERIFY(!window.findChild<QPushButton *>("retry")->isVisible());
+        QVERIFY(!window.findChild<QLabel *>("weekRange")->text().isEmpty());
+        QVERIFY(window.grab().save("window-connected.png"));
     }
 };
 QTEST_MAIN(WindowSmokeTest)
