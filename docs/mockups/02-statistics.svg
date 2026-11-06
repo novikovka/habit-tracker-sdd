@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860">
+<title>Макет трекера привычек — на согласовании</title>
+<rect x="0" y="0" width="1280" height="860" rx="0" fill="#FAF5EF"/>
+<rect x="0" y="0" width="1280" height="36" rx="0" fill="#FFFDFC"/>
+<rect x="18" y="10" width="16" height="16" rx="5" fill="#923F60"/>
+<text x="43" y="20.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#49363F">Трекер привычек</text>
+<path d="M1148 18L1159 18" fill="none" stroke="#806B74" stroke-width="1" stroke-linecap="round"/>
+<rect x="1190" y="12" width="11" height="11" rx="0" fill="#FFFDFC" stroke="#806B74"/>
+<path d="M1242 12L1253 23" fill="none" stroke="#806B74" stroke-width="1" stroke-linecap="round"/>
+<path d="M1253 12L1242 23" fill="none" stroke="#806B74" stroke-width="1" stroke-linecap="round"/>
+<path d="M0 36L1280 36" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="40" y="93.6" font-family="Segoe UI,Arial,sans-serif" font-size="32" font-weight="600" fill="#49363F">Статистика</text>
+<text x="41" y="124.8" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#806B74">Ваш ритм за последние 30 дней</text>
+<rect x="1055" y="78" width="185" height="40" rx="10" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="1090.75" y="100.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">‹ Назад к неделе</text>
+<rect x="40" y="156" width="588" height="316" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="64" y="194.0" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="600" fill="#49363F">Последние 7 дней</text>
+<text x="490.5" y="193.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#923F60">11 выполнений</text>
+<text x="64" y="220.4" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#806B74">31.10 — 06.11.2026</text>
+<text x="64" y="243.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">Привычек за день</text>
+<path d="M88 422.0L600 422.0" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66.5" y="424.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">0</text>
+<path d="M88 366.6666666666667L600 366.6666666666667" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66.5" y="369.2666666666667" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">1</text>
+<path d="M88 311.3333333333333L600 311.3333333333333" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66.5" y="313.93333333333334" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">2</text>
+<path d="M88 256.0L600 256.0" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66.5" y="258.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">3</text>
+<rect x="105.57142857142857" y="366.6666666666667" width="38" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<text x="120.82142857142857" y="355.06666666666666" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">1</text>
+<text x="111.32142857142857" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">31.10</text>
+<path d="M178.71428571428572 422L216.71428571428572 422" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="193.96428571428572" y="410.4" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">0</text>
+<text x="184.46428571428572" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">01.11</text>
+<rect x="251.85714285714283" y="311.3333333333333" width="38" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="267.10714285714283" y="299.7333333333333" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">2</text>
+<text x="257.60714285714283" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">02.11</text>
+<rect x="325.0" y="311.3333333333333" width="38" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="340.25" y="299.7333333333333" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">2</text>
+<text x="330.75" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">03.11</text>
+<rect x="398.1428571428571" y="311.3333333333333" width="38" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="413.3928571428571" y="299.7333333333333" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">2</text>
+<text x="403.8928571428571" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">04.11</text>
+<rect x="471.2857142857143" y="311.3333333333333" width="38" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="486.5357142857143" y="299.7333333333333" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">2</text>
+<text x="477.0357142857143" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">05.11</text>
+<rect x="544.4285714285713" y="311.3333333333333" width="38" height="110.66666666666667" rx="4" fill="#923F60"/>
+<text x="559.6785714285713" y="299.7333333333333" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600" fill="#49363F">2</text>
+<text x="550.1785714285713" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">06.11</text>
+<rect x="648" y="156" width="592" height="316" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="672" y="194.0" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="600" fill="#49363F">Последние 30 дней</text>
+<text x="1102.5" y="193.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#923F60">44 выполнений</text>
+<text x="672" y="220.4" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#806B74">08.10 — 06.11.2026</text>
+<text x="672" y="243.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">Привычек за день</text>
+<path d="M696 422.0L1212 422.0" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="674.5" y="424.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">0</text>
+<path d="M696 366.6666666666667L1212 366.6666666666667" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="674.5" y="369.2666666666667" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">1</text>
+<path d="M696 311.3333333333333L1212 311.3333333333333" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="674.5" y="313.93333333333334" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">2</text>
+<path d="M696 256.0L1212 256.0" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="674.5" y="258.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">3</text>
+<rect x="699.268" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<text x="691.35" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">08.10</text>
+<rect x="716.468" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="733.668" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="750.868" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<path d="M768.068 422L778.732 422" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<rect x="785.268" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="777.35" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">13.10</text>
+<rect x="802.468" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="819.668" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="836.868" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="854.068" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="871.268" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<text x="863.35" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">18.10</text>
+<rect x="888.468" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="905.668" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="922.868" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="940.068" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="957.2679999999999" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="949.3499999999999" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">23.10</text>
+<rect x="974.468" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="991.668" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1008.868" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="1026.068" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1043.2679999999998" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<text x="1035.35" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">28.10</text>
+<rect x="1060.4679999999998" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1077.668" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<rect x="1094.868" y="366.6666666666667" width="10.664" height="55.333333333333336" rx="4" fill="#E9B7C7"/>
+<path d="M1112.068 422L1122.732 422" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<rect x="1129.2679999999998" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<text x="1121.35" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">02.11</text>
+<rect x="1146.4679999999998" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1163.668" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1180.868" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#E9B7C7"/>
+<rect x="1198.068" y="311.3333333333333" width="10.664" height="110.66666666666667" rx="4" fill="#923F60"/>
+<text x="1190.15" y="446.8" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="400" fill="#806B74">06.11</text>
+<text x="40" y="528.4" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="600" fill="#49363F">Итоги по привычкам</text>
+<text x="1029.4921875" y="528.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#806B74">По 6 ноября 2026 включительно</text>
+<rect x="40" y="554" width="1200" height="226" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="66" y="587.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#806B74">Привычка</text>
+<text x="648.7578125" y="587.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#806B74">Текущая серия</text>
+<text x="897.5" y="587.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#806B74">За 7 дней</text>
+<text x="1113.5" y="587.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#806B74">За 30 дней</text>
+<path d="M64 607L1216 607" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66" y="636.6" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" fill="#49363F">Чтение 20 минут</text>
+<rect x="659" y="618" width="82" height="32" rx="16" fill="#F8E6EC"/>
+<text x="683.5" y="637.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#923F60">5 дн.</text>
+<text x="924.75" y="637.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">5</text>
+<text x="1139.5" y="637.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">21</text>
+<path d="M64 657L1216 657" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66" y="687.6" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" fill="#49363F">Прогулка</text>
+<rect x="659" y="669" width="82" height="32" rx="16" fill="#F8E6EC"/>
+<text x="683.5" y="688.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#923F60">2 дн.</text>
+<text x="924.75" y="688.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">4</text>
+<text x="1139.5" y="688.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">15</text>
+<path d="M64 708L1216 708" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="66" y="738.6" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" fill="#49363F">Растяжка</text>
+<rect x="659" y="720" width="82" height="32" rx="16" fill="#F8E6EC"/>
+<text x="683.5" y="739.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#923F60">1 дн.</text>
+<text x="924.75" y="739.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">2</text>
+<text x="1144.75" y="739.4" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#49363F">8</text>
+<text x="40" y="818.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#806B74">Одна отметка — одно выполнение привычки за день.</text>
+</svg>

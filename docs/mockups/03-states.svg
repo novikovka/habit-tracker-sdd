@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1060" viewBox="0 0 1280 1060">
+<title>Макет трекера привычек — на согласовании</title>
+<rect x="0" y="0" width="1280" height="1060" rx="0" fill="#FAF5EF"/>
+<text x="40" y="54.400000000000006" font-family="Segoe UI,Arial,sans-serif" font-size="28" font-weight="600" fill="#49363F">Состояния и диалоги</text>
+<text x="40" y="87.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#806B74">Дополнение к основным экранам · макет для согласования</text>
+<text x="40" y="131.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">ДОБАВЛЕНИЕ / ПЕРЕИМЕНОВАНИЕ</text>
+<rect x="40" y="150" width="586" height="246" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="64" y="191.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Добавить привычку</text>
+<text x="64" y="231.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#806B74">Название</text>
+<rect x="64" y="246" width="538" height="46" rx="10" fill="#FFFDFC" stroke="#923F60"/>
+<text x="80" y="271.8" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#49363F">Чтение 20 минут</text>
+<rect x="350" y="329" width="112" height="40" rx="10" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="380.25" y="351.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">Отмена</text>
+<rect x="474" y="329" width="128" height="40" rx="10" fill="#923F60"/>
+<text x="501.75" y="351.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#FFFFFF">Сохранить</text>
+<text x="654" y="131.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ</text>
+<rect x="654" y="150" width="586" height="246" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="678" y="191.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Удалить привычку?</text>
+<text x="678" y="235.6" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="400" fill="#49363F">«Чтение 20 минут» и все её отметки</text>
+<text x="678" y="263.8" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#806B74">будут удалены без возможности восстановления.</text>
+<rect x="960" y="329" width="118" height="40" rx="10" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="993.25" y="351.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">Отмена</text>
+<rect x="959" y="328" width="120" height="42" rx="11" fill="#FFFDFC" stroke="#923F60"/>
+<text x="993.25" y="351.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">Отмена</text>
+<rect x="1090" y="329" width="126" height="40" rx="10" fill="#F8E6EC" stroke="#EADDDC"/>
+<text x="1124.76171875" y="351.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#923F60">Удалить</text>
+<text x="40" y="443.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">ПУСТОЙ СПИСОК</text>
+<rect x="40" y="462" width="586" height="216" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="183.25390625" y="507.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Начните с одной привычки</text>
+<text x="145.7734375" y="544.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#806B74">Добавьте то, чему хотите уделять время каждый день.</text>
+<rect x="223" y="589" width="220" height="40" rx="10" fill="#923F60"/>
+<text x="255.75" y="611.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#FFFFFF">+ Добавить привычку</text>
+<text x="654" y="443.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">ОШИБКА ПОДКЛЮЧЕНИЯ</text>
+<rect x="654" y="462" width="586" height="216" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="678" y="505.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Не удалось загрузить привычки</text>
+<text x="678" y="546.8" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#806B74">Проверьте подключение к базе данных</text>
+<text x="678" y="572.8" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#806B74">и попробуйте ещё раз.</text>
+<rect x="940" y="613" width="126" height="40" rx="10" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="974.0" y="635.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">Закрыть</text>
+<rect x="1078" y="613" width="138" height="40" rx="10" fill="#923F60"/>
+<text x="1110.0" y="635.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#FFFFFF">Повторить</text>
+<text x="40" y="725.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">ПУСТОЕ НАЗВАНИЕ</text>
+<rect x="40" y="744" width="586" height="270" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="64" y="785.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Добавить привычку</text>
+<text x="64" y="821.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#806B74">Название</text>
+<rect x="64" y="836" width="538" height="44" rx="10" fill="#FFFDFC" stroke="#923F60"/>
+<text x="64" y="905.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#923F60">Введите название привычки.</text>
+<rect x="350" y="950" width="112" height="40" rx="10" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="380.25" y="972.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#49363F">Отмена</text>
+<rect x="474" y="950" width="128" height="40" rx="10" fill="#EFEAE6"/>
+<text x="501.75" y="972.2" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600" fill="#806B74">Сохранить</text>
+<text x="654" y="725.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600" fill="#923F60">СТАТИСТИКА БЕЗ ОТМЕТОК</text>
+<rect x="654" y="744" width="586" height="270" rx="18" fill="#FFFDFC" stroke="#EADDDC"/>
+<text x="678" y="785.6" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="600" fill="#49363F">Последние 7 дней</text>
+<text x="1111.0" y="786.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#923F60">0 выполнений</text>
+<text x="678" y="824.0" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#806B74">Пока нет выполнений за этот период.</text>
+<path d="M699 921L1192 921" fill="none" stroke="#EADDDC" stroke-width="1" stroke-linecap="round"/>
+<text x="680.5" y="924.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">0</text>
+<path d="M719 921L735 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="712.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">31.10</text>
+<path d="M790 921L806 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="783.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">01.11</text>
+<path d="M861 921L877 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="854.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">02.11</text>
+<path d="M932 921L948 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="925.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">03.11</text>
+<path d="M1003 921L1019 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="996.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">04.11</text>
+<path d="M1074 921L1090 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="1067.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">05.11</text>
+<path d="M1145 921L1161 921" fill="none" stroke="#B6A5AB" stroke-width="2" stroke-linecap="round"/>
+<text x="1138.75" y="951.6" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="400" fill="#806B74">06.11</text>
+</svg>
