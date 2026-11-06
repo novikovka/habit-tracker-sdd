@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.24)
+project(HabitTrackerSDD VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Sql Test)
+enable_testing()
+
+add_library(habit_data STATIC src/data/Database.cpp src/data/Database.h)
+target_link_libraries(habit_data PUBLIC Qt6::Sql)
+target_include_directories(habit_data PUBLIC src)
+qt_add_resources(habit_data schema PREFIX "/" FILES db/001_initial.sql)
+
+add_library(habit_ui STATIC src/MainWindow.cpp src/MainWindow.h)
+target_link_libraries(habit_ui PUBLIC habit_data Qt6::Widgets)
+qt_add_executable(habit_tracker WIN32 src/main.cpp)
+target_link_libraries(habit_tracker PRIVATE habit_ui)
+
+qt_add_executable(database_smoke_test tests/DatabaseSmokeTest.cpp)
+target_link_libraries(database_smoke_test PRIVATE habit_data Qt6::Test)
+qt_add_executable(window_smoke_test tests/WindowSmokeTest.cpp)
+target_link_libraries(window_smoke_test PRIVATE habit_ui Qt6::Test)
+set_target_properties(database_smoke_test window_smoke_test PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME database_smoke COMMAND database_smoke_test -o database-results.txt,txt)
+add_test(NAME window_smoke COMMAND window_smoke_test -o window-results.txt,txt)
+set_tests_properties(database_smoke window_smoke PROPERTIES TIMEOUT 45)
+
+if(MINGW)
+    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endforeach()
+endif()
