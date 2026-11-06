@@ -1,0 +1,19 @@
+# Build output and local IDE state
+/build/
+/build-*/
+/.vs/
+/.vscode/
+*.user
+CMakeUserPresets.json
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+connection.ini
+connection.local.ini
+*.pem
+*.key
+
+# Runtime logs
+*.log
