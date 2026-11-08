@@ -16,7 +16,8 @@ function Read-LocalPassword([string]$Prompt) {
     finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer); $secure.Dispose() }
 }
 
-function Invoke-LocalSql([string]$Sql, [string]$Database = 'postgres') {
+function Invoke-LocalSql([string]$Sql, [string]$Database = 'postgres',
+                         [string]$Operation = 'SQL', [switch]$Sensitive) {
     # SQL goes through stdin, never process arguments. Raw errors can contain SQL,
     # so they are consumed locally and replaced by a message without credentials.
     $start = New-Object System.Diagnostics.ProcessStartInfo
@@ -27,13 +28,15 @@ function Invoke-LocalSql([string]$Sql, [string]$Database = 'postgres') {
     $start.RedirectStandardInput = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
+    $start.StandardOutputEncoding = New-Object Text.UTF8Encoding($false)
     $start.EnvironmentVariables['PGCLIENTENCODING'] = 'UTF8'
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $start
+    $errorBytes = New-Object IO.MemoryStream
     try {
         [void]$process.Start()
         $outTask = $process.StandardOutput.ReadToEndAsync()
-        $errTask = $process.StandardError.ReadToEndAsync()
+        $errTask = $process.StandardError.BaseStream.CopyToAsync($errorBytes)
         $sqlBytes = [Text.Encoding]::UTF8.GetBytes($Sql + "`n")
         $process.StandardInput.BaseStream.Write($sqlBytes, 0, $sqlBytes.Length)
         $process.StandardInput.BaseStream.Flush()
@@ -41,38 +44,51 @@ function Invoke-LocalSql([string]$Sql, [string]$Database = 'postgres') {
         $process.WaitForExit()
         $output = $outTask.GetAwaiter().GetResult()
         [void]$errTask.GetAwaiter().GetResult()
+        try { $errorOutput = (New-Object Text.UTF8Encoding($false,$true)).GetString($errorBytes.ToArray()) }
+        catch [Text.DecoderFallbackException] { $errorOutput = [Text.Encoding]::Default.GetString($errorBytes.ToArray()) }
         if ($process.ExitCode -ne 0) {
-            throw 'PostgreSQL отклонил операцию. Проверьте пароль администратора, роль и права. Секреты не выводятся.'
+            if ($Sensitive) {
+                throw "PostgreSQL отклонил шаг: $Operation. Подробности операции с паролем скрыты."
+            }
+            # Non-secret queries may report useful connection/permission errors.
+            # Redact credentials anyway; never return raw errors for password SQL.
+            if ($env:PGPASSWORD) { $errorOutput = $errorOutput.Replace($env:PGPASSWORD, '[скрыто]') }
+            if ($appPassword) { $errorOutput = $errorOutput.Replace($appPassword, '[скрыто]') }
+            $errorOutput = $errorOutput.Trim()
+            if ($errorOutput.Length -gt 1200) { $errorOutput = $errorOutput.Substring(0,1200) }
+            throw "PostgreSQL отклонил шаг: $Operation.`n$errorOutput"
         }
         return $output.Trim()
-    } finally { $process.Dispose() }
+    } finally { $process.Dispose(); $errorBytes.Dispose() }
 }
 
 try {
+    Write-Host "Сервер: localhost:$Port; администратор: $AdminUser"
     $env:PGPASSWORD = Read-LocalPassword 'Текущий пароль администратора PostgreSQL'
-    [void](Invoke-LocalSql 'SELECT current_user;')
-    $roleExists = Invoke-LocalSql "SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='habit_tracker_sdd_app');"
+    [void](Invoke-LocalSql 'SELECT current_user;' -Operation 'вход администратора')
+    Write-Host 'Вход администратора выполнен.'
+    $roleExists = Invoke-LocalSql "SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='habit_tracker_sdd_app');" -Operation 'проверка роли приложения'
     if ($roleExists -eq 't') {
-        $privileged = Invoke-LocalSql "SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication FROM pg_roles WHERE rolname='habit_tracker_sdd_app';"
+        $privileged = Invoke-LocalSql "SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication FROM pg_roles WHERE rolname='habit_tracker_sdd_app';" -Operation 'проверка прав роли'
         if ($privileged -ne 'f') { throw 'Существующая роль имеет лишние права. Автоматическая настройка остановлена.' }
         Write-Host 'Роль habit_tracker_sdd_app уже существует; её пароль не изменяется.'
     } else {
         $appPassword = Read-LocalPassword 'Новый пароль отдельной роли habit_tracker_sdd_app'
         if ([string]::IsNullOrEmpty($appPassword)) { throw 'Пароль новой роли не должен быть пустым.' }
         $escapedPassword = $appPassword.Replace("'", "''")
-        [void](Invoke-LocalSql "SET standard_conforming_strings=on; CREATE ROLE habit_tracker_sdd_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '$escapedPassword';")
+        [void](Invoke-LocalSql "SET standard_conforming_strings=on; CREATE ROLE habit_tracker_sdd_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '$escapedPassword';" -Operation 'создание роли приложения' -Sensitive)
         $escapedPassword = $null
         $appPassword = $null
         Write-Host 'Создана отдельная роль habit_tracker_sdd_app.'
     }
     foreach ($databaseName in @('habit_tracker_sdd','habit_tracker_sdd_test')) {
-        $owner = Invoke-LocalSql "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname='$databaseName';"
+        $owner = Invoke-LocalSql "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname='$databaseName';" -Operation "проверка базы $databaseName"
         if ($owner) {
             if ($owner -ne 'habit_tracker_sdd_app') { throw "База $databaseName принадлежит другой роли; ничего в ней не меняется." }
             Write-Host "База $databaseName уже существует; данные сохраняются."
         } else {
-            [void](Invoke-LocalSql "CREATE DATABASE $databaseName OWNER habit_tracker_sdd_app ENCODING 'UTF8' TEMPLATE template0;")
-            [void](Invoke-LocalSql "REVOKE ALL ON DATABASE $databaseName FROM PUBLIC; GRANT CONNECT ON DATABASE $databaseName TO habit_tracker_sdd_app;")
+            [void](Invoke-LocalSql "CREATE DATABASE $databaseName OWNER habit_tracker_sdd_app ENCODING 'UTF8' TEMPLATE template0;" -Operation "создание базы $databaseName")
+            [void](Invoke-LocalSql "REVOKE ALL ON DATABASE $databaseName FROM PUBLIC; GRANT CONNECT ON DATABASE $databaseName TO habit_tracker_sdd_app;" -Operation "ограничение прав базы $databaseName")
             Write-Host "Создана база $databaseName."
         }
     }
@@ -83,6 +99,7 @@ try {
         $configText = "[database]`r`nhost=localhost`r`nport=$Port`r`nname=habit_tracker_sdd`r`nuser=habit_tracker_sdd_app`r`n"
         [IO.File]::WriteAllText($configPath,$configText,(New-Object Text.UTF8Encoding($false)))
     }
+    Write-Host "Конфигурация: $configPath"
     Write-Host 'Готово. Пароли не записаны в файлы. Можно запускать scripts/run.ps1.'
 } finally {
     $env:PGPASSWORD = $previousPgPassword
