@@ -1,19 +1,22 @@
 #include "MainWindow.h"
+#include "HabitDialog.h"
 
 #include <QDate>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLocale>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QRandomGenerator>
-#include <QSqlQuery>
+#include <QTableWidget>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QVariant>
 
 MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
-    : QMainWindow(parent), database_(purpose)
+    : QMainWindow(parent), database_(purpose), repository_(database_)
 {
     setWindowTitle(QStringLiteral("Трекер привычек"));
     resize(1280, 860);
@@ -28,13 +31,24 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
         QLabel#quoteCaption { color: #923F60; font-size: 12px; font-weight: 600; }
         QLabel#quoteText { font-size: 22px; font-weight: 600; }
         QLabel#weekRange { font-size: 23px; font-weight: 600; }
+        QDialog { background: #FAF5EF; }
+        QLabel#dialogTitle { font-size: 23px; font-weight: 600; }
+        QLabel#validationError { color: #923F60; }
+        QLineEdit { background: #FFFDFC; border: 1px solid #B98B9D; border-radius: 8px; padding: 12px; }
+        QLineEdit:focus { border: 2px solid #923F60; }
+        QTableWidget { background: #FFFDFC; alternate-background-color: #FFFDFC; border: none;
+                       gridline-color: #EADDDC; selection-background-color: #F8E6EC; selection-color: #49363F; }
+        QHeaderView::section { background: #FFFDFC; color: #806B74; border: none;
+                               border-bottom: 1px solid #EADDDC; padding: 16px; font-weight: 600; }
         QFrame#content { background: #FFFDFC; border: 1px solid #EADDDC; border-radius: 18px; }
         QLabel#message { font-size: 19px; }
         QPushButton { background: #FFFDFC; border: 1px solid #EADDDC;
                       border-radius: 9px; padding: 10px 18px; font-weight: 600; }
         QPushButton:hover { background: #F8E6EC; }
         QPushButton:focus { border: 2px solid #923F60; }
-        QPushButton#retry { background: #923F60; color: white; }
+        QPushButton#retry, QPushButton#addHabit, QPushButton#emptyAddHabit,
+        QPushButton#saveHabit { background: #923F60; color: white; }
+        QPushButton#deleteHabit { background: #F8E6EC; color: #923F60; }
         QPushButton:disabled { background: #EFEAE6; color: #806B74; }
     )"));
 
@@ -97,22 +111,46 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
     next->setEnabled(false);
     week->addWidget(next);
     week->addStretch();
-    auto *add = new QPushButton(QStringLiteral("+ Добавить привычку"));
-    add->setObjectName("addHabit");
-    add->setEnabled(false); // Stage 2.
-    week->addWidget(add);
+    add_ = new QPushButton(QStringLiteral("+ Добавить привычку"));
+    add_->setObjectName("addHabit");
+    add_->setEnabled(false);
+    connect(add_, &QPushButton::clicked, this, &MainWindow::addHabit);
+    week->addWidget(add_);
     layout->addLayout(week);
 
     auto *content = new QFrame;
     content->setObjectName("content");
     auto *contentLayout = new QVBoxLayout(content);
     contentLayout->setContentsMargins(30, 30, 30, 30);
-    contentLayout->addStretch();
+    table_ = new QTableWidget(0, 2);
+    table_->setObjectName("habitsTable");
+    table_->setHorizontalHeaderLabels({QStringLiteral("Привычка"), QStringLiteral("Действия")});
+    table_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    table_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+    table_->setColumnWidth(1, 310);
+    table_->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    table_->verticalHeader()->hide();
+    table_->verticalHeader()->setDefaultSectionSize(72);
+    table_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table_->setSelectionMode(QAbstractItemView::SingleSelection);
+    table_->setTextElideMode(Qt::ElideRight);
+    table_->setShowGrid(false);
+    table_->hide();
+    contentLayout->addWidget(table_);
+    statePanel_ = new QWidget;
+    auto *stateLayout = new QVBoxLayout(statePanel_);
+    stateLayout->addStretch();
     message_ = new QLabel(QStringLiteral("Подключение к базе данных…"));
     message_->setObjectName("message");
     message_->setWordWrap(true);
     message_->setAlignment(Qt::AlignCenter);
-    contentLayout->addWidget(message_);
+    stateLayout->addWidget(message_);
+    emptyAdd_ = new QPushButton(QStringLiteral("+ Добавить привычку"));
+    emptyAdd_->setObjectName("emptyAddHabit");
+    emptyAdd_->hide();
+    connect(emptyAdd_, &QPushButton::clicked, this, &MainWindow::addHabit);
+    stateLayout->addWidget(emptyAdd_, 0, Qt::AlignHCenter);
     auto *actions = new QHBoxLayout;
     actions->addStretch();
     close_ = new QPushButton(QStringLiteral("Закрыть"));
@@ -123,14 +161,19 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
     connect(retry_, &QPushButton::clicked, this, &MainWindow::connectDatabase);
     actions->addWidget(retry_);
     actions->addStretch();
-    contentLayout->addLayout(actions);
-    contentLayout->addStretch();
+    stateLayout->addLayout(actions);
+    stateLayout->addStretch();
+    contentLayout->addWidget(statePanel_, 1);
     layout->addWidget(content, 1);
     QTimer::singleShot(0, this, &MainWindow::connectDatabase);
 }
 
 void MainWindow::connectDatabase()
 {
+    add_->setEnabled(false);
+    emptyAdd_->hide();
+    table_->hide();
+    statePanel_->show();
     retry_->setEnabled(false);
     message_->setText(QStringLiteral("Подключение к базе данных…"));
     DatabaseConfig config;
@@ -140,20 +183,102 @@ void MainWindow::connectDatabase()
         success = database_.open(config);
         if (!success) error = database_.error();
     }
-    if (success) {
-        QSqlQuery query(database_.connection());
-        success = query.exec("SELECT count(*) FROM public.habits") && query.next();
-        if (success) {
-            message_->setText(query.value(0).toLongLong() == 0
-                ? QStringLiteral("Привычек пока нет") : QStringLiteral("Привычки сохранены в базе"));
-        } else {
-            error = QStringLiteral("Не удалось загрузить привычки. Попробуйте ещё раз.");
-        }
-    }
-    if (!success) message_->setText(error);
-    retry_->setVisible(!success);
-    close_->setVisible(!success);
+    if (success) success = loadHabits();
+    else showDataError(error);
     retry_->setEnabled(true);
     if (!success) retry_->setFocus();
     emit connectionFinished(success);
+}
+
+void MainWindow::showDataError(const QString &message)
+{
+    add_->setEnabled(false);
+    emptyAdd_->hide();
+    table_->hide();
+    statePanel_->show();
+    message_->setText(message);
+    retry_->show();
+    close_->show();
+}
+
+bool MainWindow::loadHabits()
+{
+    QVector<Habit> habits;
+    if (!repository_.list(habits)) {
+        showDataError(repository_.error());
+        return false;
+    }
+    table_->setRowCount(0);
+    for (const auto &habit : habits) {
+        const int row = table_->rowCount();
+        table_->insertRow(row);
+        auto *name = new QTableWidgetItem(habit.name);
+        name->setData(Qt::UserRole, habit.id);
+        name->setToolTip("<qt>" + habit.name.toHtmlEscaped() + "</qt>");
+        table_->setItem(row, 0, name);
+        auto *actions = new QWidget;
+        auto *buttons = new QHBoxLayout(actions);
+        buttons->setContentsMargins(6, 12, 6, 12);
+        auto *rename = new QPushButton(QStringLiteral("Переименовать"));
+        rename->setObjectName("renameHabit");
+        rename->setAccessibleName(QStringLiteral("Переименовать: ") + habit.name);
+        connect(rename, &QPushButton::clicked, this, [this, habit] { renameHabit(habit); });
+        auto *remove = new QPushButton(QStringLiteral("Удалить"));
+        remove->setObjectName("deleteHabit");
+        remove->setAccessibleName(QStringLiteral("Удалить: ") + habit.name);
+        connect(remove, &QPushButton::clicked, this, [this, habit] { deleteHabit(habit); });
+        buttons->addWidget(rename);
+        buttons->addWidget(remove);
+        table_->setCellWidget(row, 1, actions);
+    }
+    add_->setEnabled(true);
+    retry_->hide();
+    close_->hide();
+    table_->setVisible(!habits.isEmpty());
+    statePanel_->setVisible(habits.isEmpty());
+    emptyAdd_->setVisible(habits.isEmpty());
+    message_->setText(QStringLiteral("Начните с одной привычки"));
+    return true;
+}
+
+void MainWindow::addHabit()
+{
+    HabitDialog dialog(QStringLiteral("Добавить привычку"), {}, [this](const QString &name, QString &error) {
+        if (repository_.create(name)) return true;
+        error = repository_.error();
+        showDataError(error);
+        return false;
+    }, this);
+    if (dialog.exec() == QDialog::Accepted) loadHabits();
+}
+
+void MainWindow::renameHabit(const Habit &habit)
+{
+    HabitDialog dialog(QStringLiteral("Переименовать привычку"), habit.name,
+        [this, habit](const QString &name, QString &error) {
+            if (repository_.rename(habit.id, name)) return true;
+            error = repository_.error();
+            showDataError(error);
+            return false;
+        }, this);
+    if (dialog.exec() == QDialog::Accepted) loadHabits();
+}
+
+void MainWindow::deleteHabit(const Habit &habit)
+{
+    QMessageBox confirmation(this);
+    confirmation.setObjectName("deleteConfirmation");
+    confirmation.setWindowTitle(QStringLiteral("Удалить привычку?"));
+    confirmation.setTextFormat(Qt::PlainText);
+    confirmation.setText(QStringLiteral("«%1» и все её отметки будут удалены без возможности восстановления.").arg(habit.name));
+    auto *cancel = confirmation.addButton(QStringLiteral("Отмена"), QMessageBox::RejectRole);
+    cancel->setObjectName("cancelDeletion");
+    auto *remove = confirmation.addButton(QStringLiteral("Удалить"), QMessageBox::DestructiveRole);
+    remove->setObjectName("confirmDeletion");
+    confirmation.setDefaultButton(cancel);
+    confirmation.setEscapeButton(cancel);
+    confirmation.exec();
+    if (confirmation.clickedButton() != remove) return;
+    if (repository_.remove(habit.id)) loadHabits();
+    else showDataError(repository_.error());
 }

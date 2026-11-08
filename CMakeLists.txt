@@ -7,12 +7,13 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Sql Test)
 enable_testing()
 
-add_library(habit_data STATIC src/data/Database.cpp src/data/Database.h)
+add_library(habit_data STATIC src/data/Database.cpp src/data/Database.h
+    src/data/HabitRepository.cpp src/data/HabitRepository.h)
 target_link_libraries(habit_data PUBLIC Qt6::Sql)
 target_include_directories(habit_data PUBLIC src)
 qt_add_resources(habit_data schema PREFIX "/" FILES db/001_initial.sql)
 
-add_library(habit_ui STATIC src/MainWindow.cpp src/MainWindow.h)
+add_library(habit_ui STATIC src/MainWindow.cpp src/MainWindow.h src/HabitDialog.cpp src/HabitDialog.h)
 target_link_libraries(habit_ui PUBLIC habit_data Qt6::Widgets)
 qt_add_executable(habit_tracker WIN32 src/main.cpp)
 target_link_libraries(habit_tracker PRIVATE habit_ui)
@@ -26,8 +27,19 @@ add_test(NAME database_smoke COMMAND database_smoke_test -o database-results.txt
 add_test(NAME window_smoke COMMAND window_smoke_test -o window-results.txt,txt)
 set_tests_properties(database_smoke window_smoke PROPERTIES TIMEOUT 45)
 
+qt_add_executable(habit_repository_test tests/HabitRepositoryTest.cpp)
+target_link_libraries(habit_repository_test PRIVATE habit_data Qt6::Test)
+qt_add_executable(habit_ui_test tests/HabitUiTest.cpp)
+target_link_libraries(habit_ui_test PRIVATE habit_ui Qt6::Test)
+set_target_properties(habit_repository_test habit_ui_test PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME habit_repository COMMAND habit_repository_test -o habit-repository-results.txt,txt)
+add_test(NAME habit_ui COMMAND habit_ui_test -o habit-ui-results.txt,txt)
+set_tests_properties(habit_repository habit_ui PROPERTIES TIMEOUT 45)
+set_tests_properties(database_smoke window_smoke habit_repository habit_ui
+    PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
+
 if(MINGW)
-    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test)
+    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test)
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
     endforeach()
 endif()
