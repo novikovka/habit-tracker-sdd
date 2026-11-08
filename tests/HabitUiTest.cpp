@@ -105,7 +105,7 @@ private slots:
         }
         if (id) created.append(id);
         QVERIFY(row >= 0);
-        auto action = [&](const char *objectName) { return table->cellWidget(row,1)->findChild<QPushButton *>(objectName); };
+        auto action = [&](const char *objectName) { return table->cellWidget(row,table->columnCount()-1)->findChild<QPushButton *>(objectName); };
         const QString renamed = QStringLiteral("Прогулка");
         QTimer::singleShot(0, &window, [&] {
             auto *dialog = window.findChild<HabitDialog *>("habitDialog");
@@ -150,14 +150,14 @@ private slots:
             defaultCancel = box->defaultButton() == cancel;
             QTest::mouseClick(cancel, Qt::LeftButton);
         });
-        QTest::mouseClick(savedTable->cellWidget(savedRow,1)->findChild<QPushButton *>("deleteHabit"), Qt::LeftButton);
+        QTest::mouseClick(savedTable->cellWidget(savedRow,savedTable->columnCount()-1)->findChild<QPushButton *>("deleteHabit"), Qt::LeftButton);
         QVERIFY(defaultCancel);
         QCOMPARE(savedTable->rowCount(), originalCount + 1);
         QTimer::singleShot(0, &reopened, [&] {
             auto *box = reopened.findChild<QMessageBox *>("deleteConfirmation");
             if (box) QTest::mouseClick(box->findChild<QPushButton *>("confirmDeletion"), Qt::LeftButton);
         });
-        QTest::mouseClick(savedTable->cellWidget(savedRow,1)->findChild<QPushButton *>("deleteHabit"), Qt::LeftButton);
+        QTest::mouseClick(savedTable->cellWidget(savedRow,savedTable->columnCount()-1)->findChild<QPushButton *>("deleteHabit"), Qt::LeftButton);
         QCOMPARE(savedTable->rowCount(), originalCount);
         created.removeAll(id);
         QVERIFY(reopened.close());

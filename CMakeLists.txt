@@ -8,7 +8,9 @@ find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Sql Test)
 enable_testing()
 
 add_library(habit_data STATIC src/data/Database.cpp src/data/Database.h
-    src/data/HabitRepository.cpp src/data/HabitRepository.h)
+    src/data/HabitRepository.cpp src/data/HabitRepository.h
+    src/data/CompletionRepository.cpp src/data/CompletionRepository.h
+    src/domain/Calendar.cpp src/domain/Calendar.h)
 target_link_libraries(habit_data PUBLIC Qt6::Sql)
 target_include_directories(habit_data PUBLIC src)
 qt_add_resources(habit_data schema PREFIX "/" FILES db/001_initial.sql)
@@ -38,8 +40,21 @@ set_tests_properties(habit_repository habit_ui PROPERTIES TIMEOUT 45)
 set_tests_properties(database_smoke window_smoke habit_repository habit_ui
     PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
 
+qt_add_executable(calendar_test tests/CalendarTest.cpp)
+target_link_libraries(calendar_test PRIVATE habit_data Qt6::Test)
+qt_add_executable(completion_repository_test tests/CompletionRepositoryTest.cpp)
+target_link_libraries(completion_repository_test PRIVATE habit_data Qt6::Test)
+qt_add_executable(week_ui_test tests/WeekUiTest.cpp)
+target_link_libraries(week_ui_test PRIVATE habit_ui Qt6::Test)
+set_target_properties(calendar_test completion_repository_test week_ui_test PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME calendar COMMAND calendar_test -o calendar-results.txt,txt)
+add_test(NAME completion_repository COMMAND completion_repository_test -o completion-results.txt,txt)
+add_test(NAME week_ui COMMAND week_ui_test -o week-ui-results.txt,txt)
+set_tests_properties(calendar completion_repository week_ui PROPERTIES TIMEOUT 45)
+set_tests_properties(completion_repository week_ui PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
+
 if(MINGW)
-    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test)
+    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test calendar_test completion_repository_test week_ui_test)
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
     endforeach()
 endif()

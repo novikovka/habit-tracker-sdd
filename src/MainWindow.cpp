@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "HabitDialog.h"
+#include "domain/Calendar.h"
 
 #include <QDate>
 #include <QFrame>
@@ -14,9 +15,52 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QVariant>
+#include <QPainter>
+#include <QPainterPath>
+#include <QEvent>
+#include <QScrollBar>
+#include <utility>
 
-MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
-    : QMainWindow(parent), database_(purpose), repository_(database_)
+class WeekHeaderView final : public QHeaderView {
+public:
+    explicit WeekHeaderView(QWidget *parent) : QHeaderView(Qt::Horizontal, parent) {}
+    void setTodayColumn(int column) { todayColumn_ = column; viewport()->update(); }
+protected:
+    void paintSection(QPainter *painter, const QRect &rect, int column) const override
+    {
+        if (column != todayColumn_) { QHeaderView::paintSection(painter, rect, column); return; }
+        painter->save();
+        painter->fillRect(rect, QColor("#F8E6EC"));
+        painter->setPen(QColor("#923F60"));
+        painter->setFont(font());
+        painter->drawText(rect, Qt::AlignCenter, model()->headerData(column, Qt::Horizontal).toString());
+        painter->restore();
+    }
+private:
+    int todayColumn_ = -1;
+};
+
+static QIcon completionIcon(bool completed)
+{
+    QPixmap image(48, 48);
+    image.setDevicePixelRatio(2);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(QColor(completed ? "#3C6852" : "#B79BA6"), completed ? 2.5 : 1.5,
+                        Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    if (completed) {
+        QPainterPath path;
+        path.moveTo(5, 12); path.lineTo(10, 17); path.lineTo(20, 6);
+        painter.drawPath(path);
+    } else painter.drawEllipse(QPointF(12, 12), 3, 3);
+    return QIcon(image);
+}
+
+MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider todayProvider)
+    : QMainWindow(parent), database_(purpose), repository_(database_), completions_(database_),
+      todayProvider_(todayProvider ? std::move(todayProvider) : DateProvider(QDate::currentDate)),
+      today_(todayProvider_()), weekStart_(Calendar::monday(today_))
 {
     setWindowTitle(QStringLiteral("Трекер привычек"));
     resize(1280, 860);
@@ -49,6 +93,11 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
         QPushButton#retry, QPushButton#addHabit, QPushButton#emptyAddHabit,
         QPushButton#saveHabit { background: #923F60; color: white; }
         QPushButton#deleteHabit { background: #F8E6EC; color: #923F60; }
+        QLabel#streakBadge { background: #F8E6EC; color: #923F60; border-radius: 15px; font-weight: 600; }
+        QPushButton#completion { background: #FFFDFC; border: 1px solid #EADDDC; padding: 0; border-radius: 11px; }
+        QPushButton#completion:checked { background: #DCEBDD; border: none; }
+        QPushButton#completion:focus { border: 2px solid #923F60; }
+        QPushButton#completion:disabled { background: #EFEAE6; color: #94868C; border: none; }
         QPushButton:disabled { background: #EFEAE6; color: #806B74; }
     )"));
 
@@ -95,21 +144,21 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
     layout->addWidget(quote);
 
     auto *week = new QHBoxLayout;
-    auto *previous = new QPushButton(QStringLiteral("‹"));
-    previous->setAccessibleName(QStringLiteral("Предыдущая неделя"));
-    previous->setEnabled(false); // Stage 3.
-    week->addWidget(previous);
-    const auto today = QDate::currentDate();
-    const auto monday = today.addDays(1 - today.dayOfWeek());
-    const QLocale ru(QLocale::Russian, QLocale::Russia);
-    auto *weekLabel = new QLabel(ru.toString(monday, "d MMMM") + QStringLiteral(" — ")
-                                + ru.toString(monday.addDays(6), "d MMMM yyyy"));
-    weekLabel->setObjectName("weekRange");
-    week->addWidget(weekLabel);
-    auto *next = new QPushButton(QStringLiteral("›"));
-    next->setAccessibleName(QStringLiteral("Следующая неделя"));
-    next->setEnabled(false);
-    week->addWidget(next);
+    previous_ = new QPushButton(QStringLiteral("‹"));
+    previous_->setObjectName("previousWeek");
+    previous_->setAccessibleName(QStringLiteral("Предыдущая неделя"));
+    previous_->setEnabled(false);
+    connect(previous_, &QPushButton::clicked, this, [this] { navigateWeek(-1); });
+    week->addWidget(previous_);
+    weekLabel_ = new QLabel;
+    weekLabel_->setObjectName("weekRange");
+    week->addWidget(weekLabel_);
+    next_ = new QPushButton(QStringLiteral("›"));
+    next_->setObjectName("nextWeek");
+    next_->setAccessibleName(QStringLiteral("Следующая неделя"));
+    next_->setEnabled(false);
+    connect(next_, &QPushButton::clicked, this, [this] { navigateWeek(1); });
+    week->addWidget(next_);
     week->addStretch();
     add_ = new QPushButton(QStringLiteral("+ Добавить привычку"));
     add_->setObjectName("addHabit");
@@ -121,19 +170,26 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
     auto *content = new QFrame;
     content->setObjectName("content");
     auto *contentLayout = new QVBoxLayout(content);
-    contentLayout->setContentsMargins(30, 30, 30, 30);
-    table_ = new QTableWidget(0, 2);
+    contentLayout->setContentsMargins(18, 18, 18, 18);
+    table_ = new QTableWidget(0, 10);
     table_->setObjectName("habitsTable");
-    table_->setHorizontalHeaderLabels({QStringLiteral("Привычка"), QStringLiteral("Действия")});
+    weekHeader_ = new WeekHeaderView(table_);
+    table_->setHorizontalHeader(weekHeader_);
+    table_->setHorizontalHeaderLabels({QStringLiteral("Привычка"), QStringLiteral("Серия"),
+        "", "", "", "", "", "", "", QStringLiteral("Действия")});
     table_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    table_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-    table_->setColumnWidth(1, 310);
+    for (int column=1; column<10; ++column)
+        table_->horizontalHeader()->setSectionResizeMode(column, QHeaderView::Fixed);
+    table_->setColumnWidth(1, 82);
+    for (int column=2; column<9; ++column) table_->setColumnWidth(column, 72);
+    table_->setColumnWidth(9, 310);
+    table_->horizontalHeader()->setFixedHeight(64);
     table_->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     table_->verticalHeader()->hide();
     table_->verticalHeader()->setDefaultSectionSize(72);
     table_->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table_->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table_->setSelectionMode(QAbstractItemView::SingleSelection);
+    table_->setSelectionMode(QAbstractItemView::NoSelection);
     table_->setTextElideMode(Qt::ElideRight);
     table_->setShowGrid(false);
     table_->hide();
@@ -165,11 +221,19 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose)
     stateLayout->addStretch();
     contentLayout->addWidget(statePanel_, 1);
     layout->addWidget(content, 1);
+    updateWeekHeader();
+    auto *dayTimer = new QTimer(this);
+    dayTimer->setInterval(1000);
+    connect(dayTimer, &QTimer::timeout, this, &MainWindow::checkDate);
+    dayTimer->start();
     QTimer::singleShot(0, this, &MainWindow::connectDatabase);
 }
 
 void MainWindow::connectDatabase()
 {
+    connected_ = false;
+    previous_->setEnabled(false);
+    next_->setEnabled(false);
     add_->setEnabled(false);
     emptyAdd_->hide();
     table_->hide();
@@ -192,6 +256,9 @@ void MainWindow::connectDatabase()
 
 void MainWindow::showDataError(const QString &message)
 {
+    connected_ = false;
+    previous_->setEnabled(false);
+    next_->setEnabled(false);
     add_->setEnabled(false);
     emptyAdd_->hide();
     table_->hide();
@@ -203,11 +270,17 @@ void MainWindow::showDataError(const QString &message)
 
 bool MainWindow::loadHabits()
 {
-    QVector<Habit> habits;
-    if (!repository_.list(habits)) {
-        showDataError(repository_.error());
+    const int verticalScroll = table_->verticalScrollBar()->value();
+    const int horizontalScroll = table_->horizontalScrollBar()->value();
+    today_ = todayProvider_();
+    TrackingSnapshot data;
+    if (!completions_.snapshot(data)) {
+        showDataError(completions_.error());
         return false;
     }
+    connected_ = true;
+    const auto &habits = data.habits;
+    updateWeekHeader();
     table_->setRowCount(0);
     for (const auto &habit : habits) {
         const int row = table_->rowCount();
@@ -216,6 +289,54 @@ bool MainWindow::loadHabits()
         name->setData(Qt::UserRole, habit.id);
         name->setToolTip("<qt>" + habit.name.toHtmlEscaped() + "</qt>");
         table_->setItem(row, 0, name);
+        const auto dates = data.completions.value(habit.id);
+        const int streak = Calendar::streak(dates, today_);
+        auto *seriesItem = new QTableWidgetItem;
+        seriesItem->setData(Qt::UserRole, streak);
+        table_->setItem(row, 1, seriesItem);
+        auto *series = new QWidget;
+        auto *seriesLayout = new QHBoxLayout(series);
+        seriesLayout->setContentsMargins(4, 4, 4, 4);
+        auto *badge = new QLabel(QStringLiteral("%1 дн.").arg(streak));
+        badge->setObjectName("streakBadge");
+        badge->setAlignment(Qt::AlignCenter);
+        badge->setFixedSize(66, 32);
+        badge->setToolTip(QStringLiteral("Текущая серия, независимо от выбранной недели"));
+        seriesLayout->addWidget(badge, 0, Qt::AlignCenter);
+        table_->setCellWidget(row, 1, series);
+        for (int day=0; day<7; ++day) {
+            const auto date = weekStart_.addDays(day);
+            auto *item = new QTableWidgetItem;
+            item->setData(Qt::UserRole, date);
+            item->setBackground(QColor(date == today_ ? "#F8E6EC" : "#FFFDFC"));
+            table_->setItem(row, day+2, item);
+            auto *cell = new QWidget;
+            auto *cellLayout = new QHBoxLayout(cell);
+            cellLayout->setContentsMargins(2, 8, 2, 8);
+            auto *button = new QPushButton;
+            button->setObjectName("completion");
+            button->setProperty("date", date);
+            button->setProperty("habitId", habit.id);
+            button->setFixedSize(44, 44);
+            button->setCheckable(true);
+            const bool done = dates.contains(date);
+            button->setChecked(done);
+            const bool editable = Calendar::supported(date) && date <= today_;
+            button->setEnabled(editable);
+            if (Calendar::supported(date) && date <= today_) button->setIcon(completionIcon(done));
+            else button->setText(QStringLiteral("—"));
+            button->setIconSize(QSize(24, 24));
+            const auto dateText = date.toString("dd.MM.yyyy");
+            button->setAccessibleName(habit.name + ", " + dateText + (done ? QStringLiteral(": выполнено") : QStringLiteral(": не выполнено")));
+            button->setToolTip(!Calendar::supported(date) ? QStringLiteral("Дата вне диапазона 1–9999")
+                : !editable ? QStringLiteral("Дата ещё не наступила")
+                : (done ? QStringLiteral("Снять отметку за ") : QStringLiteral("Выполнить за ")) + dateText);
+            connect(button, &QPushButton::clicked, this, [this, id=habit.id, date, button](bool checked) {
+                changeCompletion(id, date, checked, button);
+            });
+            cellLayout->addWidget(button, 0, Qt::AlignCenter);
+            table_->setCellWidget(row, day+2, cell);
+        }
         auto *actions = new QWidget;
         auto *buttons = new QHBoxLayout(actions);
         buttons->setContentsMargins(6, 12, 6, 12);
@@ -229,7 +350,7 @@ bool MainWindow::loadHabits()
         connect(remove, &QPushButton::clicked, this, [this, habit] { deleteHabit(habit); });
         buttons->addWidget(rename);
         buttons->addWidget(remove);
-        table_->setCellWidget(row, 1, actions);
+        table_->setCellWidget(row, 9, actions);
     }
     add_->setEnabled(true);
     retry_->hide();
@@ -238,7 +359,77 @@ bool MainWindow::loadHabits()
     statePanel_->setVisible(habits.isEmpty());
     emptyAdd_->setVisible(habits.isEmpty());
     message_->setText(QStringLiteral("Начните с одной привычки"));
+    table_->verticalScrollBar()->setValue(verticalScroll);
+    table_->horizontalScrollBar()->setValue(horizontalScroll);
     return true;
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowActivate)
+        QTimer::singleShot(0, this, &MainWindow::checkDate);
+    return QMainWindow::event(event);
+}
+
+void MainWindow::checkDate()
+{
+    if (todayProvider_() == today_) return;
+    today_ = todayProvider_();
+    if (connected_) loadHabits();
+    else updateWeekHeader();
+}
+
+void MainWindow::updateWeekHeader()
+{
+    const QLocale ru(QLocale::Russian, QLocale::Russia);
+    auto last = weekStart_.addDays(6);
+    if (!Calendar::supported(last)) last = QDate(9999,12,31);
+    weekLabel_->setText(ru.toString(weekStart_, "d MMMM yyyy") + QStringLiteral(" — ")
+                        + ru.toString(last, "d MMMM yyyy"));
+    previous_->setEnabled(connected_ && Calendar::shiftWeek(weekStart_, -1).isValid());
+    next_->setEnabled(connected_ && Calendar::shiftWeek(weekStart_, 1).isValid());
+    int todayColumn = -1;
+    for (int day=0; day<7; ++day) {
+        const auto date = weekStart_.addDays(day);
+        table_->horizontalHeaderItem(day+2)->setText(Calendar::supported(date)
+            ? ru.toString(date, "ddd\ndd.MM") : QStringLiteral("—"));
+        if (date == today_) todayColumn = day+2;
+    }
+    weekHeader_->setTodayColumn(todayColumn);
+}
+
+void MainWindow::navigateWeek(int weeks)
+{
+    checkDate();
+    const auto next = Calendar::shiftWeek(weekStart_, weeks);
+    if (!connected_ || !next.isValid()) return;
+    weekStart_ = next;
+    loadHabits();
+}
+
+void MainWindow::changeCompletion(qint64 id, const QDate &date, bool completed, QPushButton *button)
+{
+    button->setEnabled(false);
+    if (todayProvider_() != today_) {
+        QTimer::singleShot(0, this, [this] { loadHabits(); });
+        return;
+    }
+    const bool saved = completions_.setCompleted(id, date, completed, todayProvider_());
+    const auto error = completions_.error();
+    // Defer rebuilding the table until the button's click event has returned.
+    QTimer::singleShot(0, this, [this, saved, error, id, date] {
+        const bool loaded = loadHabits();
+        if (loaded && date >= weekStart_ && date <= weekStart_.addDays(6)) {
+            const int column = int(weekStart_.daysTo(date)) + 2;
+            for (int row=0; row<table_->rowCount(); ++row) {
+                if (table_->item(row,0)->data(Qt::UserRole).toLongLong() != id) continue;
+                auto *cell = table_->cellWidget(row,column)->findChild<QPushButton *>("completion");
+                if (cell->isEnabled()) cell->setFocus(Qt::OtherFocusReason);
+                break;
+            }
+        }
+        if (!saved && loaded) QMessageBox::warning(this, QStringLiteral("Отметка не подтверждена"), error);
+    });
 }
 
 void MainWindow::addHabit()

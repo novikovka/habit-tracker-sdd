@@ -2,20 +2,30 @@
 
 #include "data/Database.h"
 #include "data/HabitRepository.h"
+#include "data/CompletionRepository.h"
 #include <QMainWindow>
+#include <functional>
 
 class QLabel;
 class QPushButton;
 class QTableWidget;
+class WeekHeaderView;
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
+    using DateProvider = std::function<QDate()>;
     explicit MainWindow(QWidget *parent = nullptr,
-                        Database::Purpose purpose = Database::Purpose::Application);
+                        Database::Purpose purpose = Database::Purpose::Application,
+                        DateProvider todayProvider = {});
 signals:
     void connectionFinished(bool success);
 private:
+    bool event(QEvent *event) override;
+    void checkDate();
+    void navigateWeek(int weeks);
+    void updateWeekHeader();
+    void changeCompletion(qint64 id, const QDate &date, bool completed, QPushButton *button);
     void connectDatabase();
     bool loadHabits();
     void showDataError(const QString &message);
@@ -24,6 +34,15 @@ private:
     void deleteHabit(const Habit &habit);
     Database database_;
     HabitRepository repository_;
+    CompletionRepository completions_;
+    DateProvider todayProvider_;
+    QDate today_;
+    QDate weekStart_;
+    bool connected_ = false;
+    WeekHeaderView *weekHeader_ = nullptr;
+    QLabel *weekLabel_ = nullptr;
+    QPushButton *previous_ = nullptr;
+    QPushButton *next_ = nullptr;
     QTableWidget *table_ = nullptr;
     QWidget *statePanel_ = nullptr;
     QPushButton *add_ = nullptr;

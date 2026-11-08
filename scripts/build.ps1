@@ -34,7 +34,7 @@ try {
         else { $env:HABIT_TRACKER_RUN_DB_TESTS = '0' }
         & $ctest --test-dir $output --output-on-failure -V
         $testExitCode = $LASTEXITCODE
-        foreach ($testLog in @('database-results.txt','window-results.txt','habit-repository-results.txt','habit-ui-results.txt')) {
+        foreach ($testLog in @('database-results.txt','window-results.txt','habit-repository-results.txt','habit-ui-results.txt','calendar-results.txt','completion-results.txt','week-ui-results.txt')) {
             $logPath = Join-Path $output $testLog
             if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath -Encoding UTF8 }
         }
