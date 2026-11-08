@@ -10,6 +10,8 @@ class QLabel;
 class QPushButton;
 class QTableWidget;
 class WeekHeaderView;
+class QStackedWidget;
+class StatisticsPage;
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
@@ -23,6 +25,9 @@ signals:
 private:
     bool event(QEvent *event) override;
     void checkDate();
+    void showStatistics();
+    void refreshStatistics();
+    void returnToWeek();
     void navigateWeek(int weeks);
     void updateWeekHeader();
     void changeCompletion(qint64 id, const QDate &date, bool completed, QPushButton *button);
@@ -39,6 +44,10 @@ private:
     QDate today_;
     QDate weekStart_;
     bool connected_ = false;
+    QStackedWidget *pages_ = nullptr;
+    QWidget *weekPage_ = nullptr;
+    StatisticsPage *statisticsPage_ = nullptr;
+    QPushButton *statisticsButton_ = nullptr;
     WeekHeaderView *weekHeader_ = nullptr;
     QLabel *weekLabel_ = nullptr;
     QPushButton *previous_ = nullptr;

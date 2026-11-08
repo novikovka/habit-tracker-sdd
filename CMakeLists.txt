@@ -10,12 +10,13 @@ enable_testing()
 add_library(habit_data STATIC src/data/Database.cpp src/data/Database.h
     src/data/HabitRepository.cpp src/data/HabitRepository.h
     src/data/CompletionRepository.cpp src/data/CompletionRepository.h
-    src/domain/Calendar.cpp src/domain/Calendar.h)
+    src/domain/Calendar.cpp src/domain/Calendar.h src/domain/Statistics.cpp src/domain/Statistics.h)
 target_link_libraries(habit_data PUBLIC Qt6::Sql)
 target_include_directories(habit_data PUBLIC src)
 qt_add_resources(habit_data schema PREFIX "/" FILES db/001_initial.sql)
 
-add_library(habit_ui STATIC src/MainWindow.cpp src/MainWindow.h src/HabitDialog.cpp src/HabitDialog.h)
+add_library(habit_ui STATIC src/MainWindow.cpp src/MainWindow.h src/HabitDialog.cpp src/HabitDialog.h
+    src/BarChart.cpp src/BarChart.h src/StatisticsPage.cpp src/StatisticsPage.h)
 target_link_libraries(habit_ui PUBLIC habit_data Qt6::Widgets)
 qt_add_executable(habit_tracker WIN32 src/main.cpp)
 target_link_libraries(habit_tracker PRIVATE habit_ui)
@@ -53,8 +54,18 @@ add_test(NAME week_ui COMMAND week_ui_test -o week-ui-results.txt,txt)
 set_tests_properties(calendar completion_repository week_ui PROPERTIES TIMEOUT 45)
 set_tests_properties(completion_repository week_ui PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
 
+qt_add_executable(statistics_test tests/StatisticsTest.cpp)
+target_link_libraries(statistics_test PRIVATE habit_data Qt6::Test)
+qt_add_executable(statistics_ui_test tests/StatisticsUiTest.cpp)
+target_link_libraries(statistics_ui_test PRIVATE habit_ui Qt6::Test)
+set_target_properties(statistics_test statistics_ui_test PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME statistics COMMAND statistics_test -o statistics-results.txt,txt)
+add_test(NAME statistics_ui COMMAND statistics_ui_test -o statistics-ui-results.txt,txt)
+set_tests_properties(statistics statistics_ui PROPERTIES TIMEOUT 45)
+set_tests_properties(statistics_ui PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
+
 if(MINGW)
-    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test calendar_test completion_repository_test week_ui_test)
+    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test calendar_test completion_repository_test week_ui_test statistics_test statistics_ui_test)
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
     endforeach()
 endif()

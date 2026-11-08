@@ -1,6 +1,8 @@
 #include "MainWindow.h"
 #include "HabitDialog.h"
 #include "domain/Calendar.h"
+#include "StatisticsPage.h"
+#include "domain/Statistics.h"
 
 #include <QDate>
 #include <QFrame>
@@ -19,6 +21,7 @@
 #include <QPainterPath>
 #include <QEvent>
 #include <QScrollBar>
+#include <QStackedWidget>
 #include <utility>
 
 class WeekHeaderView final : public QHeaderView {
@@ -66,7 +69,8 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
     resize(1280, 860);
     setMinimumSize(800, 600);
     setStyleSheet(QStringLiteral(R"(
-        QMainWindow, QWidget#root { background: #FAF5EF; color: #49363F; }
+        QMainWindow, QWidget#root, QWidget#statisticsPage, QWidget#statisticsBody,
+        QScrollArea#statisticsScroll { background: #FAF5EF; color: #49363F; }
         QWidget { font-family: 'Segoe UI'; font-size: 15px; color: #49363F; }
         QLabel { background: transparent; }
         QLabel#title { font-size: 32px; font-weight: 600; }
@@ -75,6 +79,12 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
         QLabel#quoteCaption { color: #923F60; font-size: 12px; font-weight: 600; }
         QLabel#quoteText { font-size: 22px; font-weight: 600; }
         QLabel#weekRange { font-size: 23px; font-weight: 600; }
+        QFrame#statisticsCard { background: #FFFDFC; border: 1px solid #EADDDC; border-radius: 18px; }
+        QLabel#statisticsHeading { font-size: 21px; font-weight: 600; }
+        QLabel[kind="total"] { color: #923F60; font-weight: 600; }
+        QLabel#legendDone { background: #DCEBDD; color: #3C6852; border-radius: 14px; padding: 7px 18px; }
+        QLabel#legendToday { background: #F8E6EC; color: #923F60; border-radius: 14px; padding: 7px 18px; }
+        QLabel#legendFuture { background: #EFEAE6; color: #806B74; border-radius: 14px; padding: 7px 18px; }
         QDialog { background: #FAF5EF; }
         QLabel#dialogTitle { font-size: 23px; font-weight: 600; }
         QLabel#validationError { color: #923F60; }
@@ -101,9 +111,12 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
         QPushButton:disabled { background: #EFEAE6; color: #806B74; }
     )"));
 
+    pages_ = new QStackedWidget;
+    setCentralWidget(pages_);
     auto *root = new QWidget;
+    weekPage_ = root;
     root->setObjectName("root");
-    setCentralWidget(root);
+    pages_->addWidget(root);
     auto *layout = new QVBoxLayout(root);
     layout->setContentsMargins(40, 30, 40, 30);
     layout->setSpacing(24);
@@ -117,10 +130,11 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
     subtitle->setObjectName("subtitle");
     titleGroup->addWidget(subtitle);
     header->addLayout(titleGroup, 1);
-    auto *statistics = new QPushButton(QStringLiteral("Статистика"));
-    statistics->setObjectName("statistics");
-    statistics->setEnabled(false); // Implemented in stage 4.
-    header->addWidget(statistics);
+    statisticsButton_ = new QPushButton(QStringLiteral("Статистика"));
+    statisticsButton_->setObjectName("statistics");
+    statisticsButton_->setEnabled(false);
+    connect(statisticsButton_, &QPushButton::clicked, this, &MainWindow::showStatistics);
+    header->addWidget(statisticsButton_);
     layout->addLayout(header);
 
     auto *quote = new QFrame;
@@ -191,6 +205,7 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
     table_->setSelectionBehavior(QAbstractItemView::SelectRows);
     table_->setSelectionMode(QAbstractItemView::NoSelection);
     table_->setTextElideMode(Qt::ElideRight);
+    table_->setWordWrap(false);
     table_->setShowGrid(false);
     table_->hide();
     contentLayout->addWidget(table_);
@@ -221,6 +236,21 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
     stateLayout->addStretch();
     contentLayout->addWidget(statePanel_, 1);
     layout->addWidget(content, 1);
+    auto *legend = new QHBoxLayout;
+    for (const auto &entry : {qMakePair(QStringLiteral("Выполнено"),"legendDone"),
+                              qMakePair(QStringLiteral("Сегодня"),"legendToday"),
+                              qMakePair(QStringLiteral("Будущий день"),"legendFuture")}) {
+        auto *label = new QLabel(entry.first); label->setObjectName(entry.second); legend->addWidget(label);
+    }
+    legend->addStretch(); layout->addLayout(legend);
+    statisticsPage_ = new StatisticsPage;
+    pages_->addWidget(statisticsPage_);
+    connect(statisticsPage_, &StatisticsPage::backRequested, this, &MainWindow::returnToWeek);
+    connect(statisticsPage_, &StatisticsPage::retryRequested, this, [this] {
+        connectDatabase();
+        if (connected_) refreshStatistics();
+        else statisticsPage_->showError(message_->text());
+    });
     updateWeekHeader();
     auto *dayTimer = new QTimer(this);
     dayTimer->setInterval(1000);
@@ -232,6 +262,7 @@ MainWindow::MainWindow(QWidget *parent, Database::Purpose purpose, DateProvider 
 void MainWindow::connectDatabase()
 {
     connected_ = false;
+    statisticsButton_->setEnabled(false);
     previous_->setEnabled(false);
     next_->setEnabled(false);
     add_->setEnabled(false);
@@ -257,6 +288,7 @@ void MainWindow::connectDatabase()
 void MainWindow::showDataError(const QString &message)
 {
     connected_ = false;
+    statisticsButton_->setEnabled(false);
     previous_->setEnabled(false);
     next_->setEnabled(false);
     add_->setEnabled(false);
@@ -279,6 +311,7 @@ bool MainWindow::loadHabits()
         return false;
     }
     connected_ = true;
+    statisticsButton_->setEnabled(true);
     const auto &habits = data.habits;
     updateWeekHeader();
     table_->setRowCount(0);
@@ -367,7 +400,10 @@ bool MainWindow::loadHabits()
 bool MainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
-        QTimer::singleShot(0, this, &MainWindow::checkDate);
+        QTimer::singleShot(0, this, [this] {
+            if (pages_ && statisticsPage_ && pages_->currentWidget() == statisticsPage_) refreshStatistics();
+            else checkDate();
+        });
     return QMainWindow::event(event);
 }
 
@@ -375,8 +411,36 @@ void MainWindow::checkDate()
 {
     if (todayProvider_() == today_) return;
     today_ = todayProvider_();
-    if (connected_) loadHabits();
+    if (pages_->currentWidget() == statisticsPage_) refreshStatistics();
+    else if (connected_) loadHabits();
     else updateWeekHeader();
+}
+
+void MainWindow::showStatistics()
+{
+    pages_->setCurrentWidget(statisticsPage_);
+    refreshStatistics();
+}
+
+void MainWindow::refreshStatistics()
+{
+    today_ = todayProvider_();
+    TrackingSnapshot snapshot;
+    if (!completions_.snapshot(snapshot)) {
+        connected_ = false;
+        statisticsButton_->setEnabled(false);
+        statisticsPage_->showError(completions_.error());
+        return;
+    }
+    connected_ = true;
+    statisticsButton_->setEnabled(true);
+    statisticsPage_->setData(Statistics::calculate(snapshot, today_));
+}
+
+void MainWindow::returnToWeek()
+{
+    pages_->setCurrentWidget(weekPage_);
+    loadHabits();
 }
 
 void MainWindow::updateWeekHeader()
