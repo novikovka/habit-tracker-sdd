@@ -64,8 +64,14 @@ add_test(NAME statistics_ui COMMAND statistics_ui_test -o statistics-ui-results.
 set_tests_properties(statistics statistics_ui PROPERTIES TIMEOUT 45)
 set_tests_properties(statistics_ui PROPERTIES RESOURCE_LOCK habit_tracker_sdd_test)
 
+qt_add_executable(persistence_process_test tests/PersistenceProcessTest.cpp)
+target_link_libraries(persistence_process_test PRIVATE habit_data Qt6::Test)
+set_target_properties(persistence_process_test PROPERTIES WIN32_EXECUTABLE FALSE)
+add_test(NAME persistence_process COMMAND persistence_process_test -o persistence-results.txt,txt)
+set_tests_properties(persistence_process PROPERTIES TIMEOUT 45 RESOURCE_LOCK habit_tracker_sdd_test)
+
 if(MINGW)
-    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test calendar_test completion_repository_test week_ui_test statistics_test statistics_ui_test)
+    foreach(target habit_data habit_ui habit_tracker database_smoke_test window_smoke_test habit_repository_test habit_ui_test calendar_test completion_repository_test week_ui_test statistics_test statistics_ui_test persistence_process_test)
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
     endforeach()
 endif()

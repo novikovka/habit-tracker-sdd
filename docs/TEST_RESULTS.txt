@@ -1,0 +1,183 @@
+Final verification: 2026-11-08, Asia/Yekaterinburg
+Primary: 10 CTest suites, 61 Qt Test PASS including init/cleanup; no FAIL/SKIP.
+
+=== database ===
+********* Start testing of DatabaseSmokeTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : DatabaseSmokeTest::initTestCase()
+PASS   : DatabaseSmokeTest::driverLoads()
+PASS   : DatabaseSmokeTest::refusesOtherDatabase()
+PASS   : DatabaseSmokeTest::failureDoesNotExposeConnectionDetails()
+PASS   : DatabaseSmokeTest::configurationRejectsSecretAndInvalidPort()
+PASS   : DatabaseSmokeTest::integration()
+PASS   : DatabaseSmokeTest::cleanupTestCase()
+Totals: 7 passed, 0 failed, 0 skipped, 0 blacklisted, 2244ms
+********* Finished testing of DatabaseSmokeTest *********
+
+=== window ===
+********* Start testing of WindowSmokeTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : WindowSmokeTest::initTestCase()
+PASS   : WindowSmokeTest::connectionFailureAndRetry()
+PASS   : WindowSmokeTest::connectedWindow()
+PASS   : WindowSmokeTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 4573ms
+********* Finished testing of WindowSmokeTest *********
+
+=== habit-repository ===
+********* Start testing of HabitRepositoryTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : HabitRepositoryTest::initTestCase()
+PASS   : HabitRepositoryTest::validation(empty)
+PASS   : HabitRepositoryTest::validation(spaces)
+PASS   : HabitRepositoryTest::validation(unicode-space)
+PASS   : HabitRepositoryTest::validation(cyrillic)
+PASS   : HabitRepositoryTest::validation(limit)
+PASS   : HabitRepositoryTest::validation(too-long)
+PASS   : HabitRepositoryTest::validation(multiline)
+PASS   : HabitRepositoryTest::validation(paragraph)
+PASS   : HabitRepositoryTest::validation(null)
+PASS   : HabitRepositoryTest::closedConnection()
+PASS   : HabitRepositoryTest::integrationCrudAndPersistence()
+PASS   : HabitRepositoryTest::cleanupTestCase()
+Totals: 13 passed, 0 failed, 0 skipped, 0 blacklisted, 221ms
+********* Finished testing of HabitRepositoryTest *********
+
+=== habit-ui ===
+********* Start testing of HabitUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : HabitUiTest::initTestCase()
+PASS   : HabitUiTest::validationCancelAndFailedSave()
+PASS   : HabitUiTest::integrationUserActionsAndReopen()
+PASS   : HabitUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 761ms
+********* Finished testing of HabitUiTest *********
+
+=== calendar ===
+********* Start testing of CalendarTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : CalendarTest::initTestCase()
+PASS   : CalendarTest::weeks(monday)
+PASS   : CalendarTest::weeks(sunday)
+PASS   : CalendarTest::weeks(year-crossing)
+PASS   : CalendarTest::weeks(leap-day)
+PASS   : CalendarTest::weeks(spring-clock-change)
+PASS   : CalendarTest::weeks(autumn-clock-change)
+PASS   : CalendarTest::weeks(first-day)
+PASS   : CalendarTest::weeks(last-day)
+PASS   : CalendarTest::weeks(invalid)
+PASS   : CalendarTest::weeks(outside)
+PASS   : CalendarTest::navigationLimits()
+PASS   : CalendarTest::streaks()
+PASS   : CalendarTest::cleanupTestCase()
+Totals: 14 passed, 0 failed, 0 skipped, 0 blacklisted, 2ms
+********* Finished testing of CalendarTest *********
+
+=== completion ===
+********* Start testing of CompletionRepositoryTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : CompletionRepositoryTest::initTestCase()
+PASS   : CompletionRepositoryTest::rejectsUnavailableAndInvalid()
+PASS   : CompletionRepositoryTest::integrationIdempotenceAndCalendarDates()
+PASS   : CompletionRepositoryTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 229ms
+********* Finished testing of CompletionRepositoryTest *********
+
+=== week-ui ===
+********* Start testing of WeekUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : WeekUiTest::initTestCase()
+PASS   : WeekUiTest::integrationWeekMarksAndDayChange()
+PASS   : WeekUiTest::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 1608ms
+********* Finished testing of WeekUiTest *********
+
+=== statistics ===
+********* Start testing of StatisticsTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : StatisticsTest::initTestCase()
+PASS   : StatisticsTest::acceptanceDataset()
+PASS   : StatisticsTest::emptyAndCalendarBoundaries()
+PASS   : StatisticsTest::longRunAndMidnight()
+PASS   : StatisticsTest::cleanupTestCase()
+Totals: 5 passed, 0 failed, 0 skipped, 0 blacklisted, 1ms
+********* Finished testing of StatisticsTest *********
+
+=== statistics-ui ===
+********* Start testing of StatisticsUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : StatisticsUiTest::initTestCase()
+PASS   : StatisticsUiTest::errorDoesNotPretendToBeZero()
+PASS   : StatisticsUiTest::integrationStatisticsAndReturn()
+PASS   : StatisticsUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 1222ms
+********* Finished testing of StatisticsUiTest *********
+
+=== persistence ===
+********* Start testing of PersistenceProcessTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : PersistenceProcessTest::initTestCase()
+PASS   : PersistenceProcessTest::savedBetweenIndependentProcesses()
+PASS   : PersistenceProcessTest::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 261ms
+********* Finished testing of PersistenceProcessTest *********
+
+Scaled UI runs (QT_SCALE_FACTOR only; Windows settings unchanged):
+
+=== habit_ui_test / scale 125 ===
+********* Start testing of HabitUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : HabitUiTest::initTestCase()
+PASS   : HabitUiTest::validationCancelAndFailedSave()
+PASS   : HabitUiTest::integrationUserActionsAndReopen()
+PASS   : HabitUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 906ms
+********* Finished testing of HabitUiTest *********
+
+=== week_ui_test / scale 125 ===
+********* Start testing of WeekUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : WeekUiTest::initTestCase()
+PASS   : WeekUiTest::integrationWeekMarksAndDayChange()
+PASS   : WeekUiTest::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 1737ms
+********* Finished testing of WeekUiTest *********
+
+=== statistics_ui_test / scale 125 ===
+********* Start testing of StatisticsUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : StatisticsUiTest::initTestCase()
+PASS   : StatisticsUiTest::errorDoesNotPretendToBeZero()
+PASS   : StatisticsUiTest::integrationStatisticsAndReturn()
+PASS   : StatisticsUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 1351ms
+********* Finished testing of StatisticsUiTest *********
+
+=== habit_ui_test / scale 150 ===
+********* Start testing of HabitUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : HabitUiTest::initTestCase()
+PASS   : HabitUiTest::validationCancelAndFailedSave()
+PASS   : HabitUiTest::integrationUserActionsAndReopen()
+PASS   : HabitUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 1064ms
+********* Finished testing of HabitUiTest *********
+
+=== week_ui_test / scale 150 ===
+********* Start testing of WeekUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : WeekUiTest::initTestCase()
+PASS   : WeekUiTest::integrationWeekMarksAndDayChange()
+PASS   : WeekUiTest::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 1559ms
+********* Finished testing of WeekUiTest *********
+
+=== statistics_ui_test / scale 150 ===
+********* Start testing of StatisticsUiTest *********
+Config: Using QtTest library 6.9.1, Qt 6.9.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 10
+PASS   : StatisticsUiTest::initTestCase()
+PASS   : StatisticsUiTest::errorDoesNotPretendToBeZero()
+PASS   : StatisticsUiTest::integrationStatisticsAndReturn()
+PASS   : StatisticsUiTest::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 1357ms
+********* Finished testing of StatisticsUiTest *********

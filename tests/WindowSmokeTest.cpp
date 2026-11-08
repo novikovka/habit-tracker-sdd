@@ -13,12 +13,13 @@ class WindowSmokeTest : public QObject {
 private slots:
     void connectionFailureAndRetry()
     {
+        const auto actualConfigPath = DatabaseConfig::defaultPath();
         QTemporaryDir dir;
         QVERIFY(dir.isValid());
         const auto path = dir.filePath("connection.ini");
         QFile file(path);
         QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write("[database]\nhost=127.0.0.1\nport=1\nname=habit_tracker_sdd\nuser=unused\n");
+        file.write("[database]\nhost=127.0.0.1\nport=1\nname=habit_tracker_sdd_test\nuser=unused\n");
         file.close();
         const auto previous = qgetenv("HABIT_TRACKER_CONFIG");
         const auto restoreConfig = qScopeGuard([previous] {
@@ -26,7 +27,7 @@ private slots:
             else qputenv("HABIT_TRACKER_CONFIG", previous);
         });
         qputenv("HABIT_TRACKER_CONFIG", path.toUtf8());
-        MainWindow window;
+        MainWindow window(nullptr, Database::Purpose::IntegrationTest);
         QSignalSpy spy(&window, &MainWindow::connectionFinished);
         window.show();
         QTRY_VERIFY_WITH_TIMEOUT(spy.count() == 1, 10000);
@@ -42,6 +43,25 @@ private slots:
         const auto *statistics = window.findChild<QPushButton *>("statistics");
         QVERIFY(statistics && !statistics->isEnabled());
         QVERIFY(!window.findChild<QPushButton *>("addHabit")->isEnabled());
+        if (qEnvironmentVariable("HABIT_TRACKER_RUN_DB_TESTS") == "1") {
+            DatabaseConfig actual;
+            QString error;
+            QVERIFY2(DatabaseConfig::load(actualConfigPath, actual, error), qUtf8Printable(error));
+            {
+                QSettings settings(path, QSettings::IniFormat);
+                settings.setValue("database/host", actual.host);
+                settings.setValue("database/port", actual.port);
+                settings.setValue("database/name", Database::expectedName(Database::Purpose::IntegrationTest));
+                settings.setValue("database/user", actual.user);
+                settings.sync();
+            }
+            QTest::mouseClick(retry, Qt::LeftButton);
+            QTRY_COMPARE_WITH_TIMEOUT(spy.count(), 3, 10000);
+            QVERIFY(spy.at(2).at(0).toBool());
+            QVERIFY(!retry->isVisible());
+            QVERIFY(window.findChild<QPushButton *>("addHabit")->isEnabled());
+            QVERIFY(window.findChild<QPushButton *>("statistics")->isEnabled());
+        }
     }
 
     void connectedWindow()
